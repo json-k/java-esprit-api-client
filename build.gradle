@@ -1,0 +1,67 @@
+apply plugin: 'java'
+apply plugin: 'com.bmuschko.nexus'
+apply plugin: 'signing'
+
+ buildscript {
+     repositories {
+         jcenter()
+     }
+     dependencies {
+         classpath 'com.bmuschko:gradle-nexus-plugin:2.3.1'
+     }
+ }
+
+version = '0.1.0'
+group = 'org.keeber'
+archivesBaseName = 'esprit-api-client'
+
+repositories { mavenCentral();jcenter() }
+
+dependencies{
+	compile 'com.google.code.gson:gson:2.8.1'
+	compile 'com.joestelmach:natty:0.13'
+	compile 'org.slf4j:slf4j-api:1.7.25'
+	compile 'org.slf4j:slf4j-jdk14:1.7.25'
+}	
+
+javadoc {
+	failOnError = false
+}
+
+
+
+ modifyPom {
+     project {
+         name 'Java Esprit Client'
+         description 'Gradle plugin that provides tasks for configuring and uploading artifacts to Sonatype Nexus.'
+         url 'https://github.com/json-k/java-esprit-api-client'
+
+         scm {
+             url 'https://github.com/bmuschko/gradle-nexus-plugin'
+             connection 'scm:svn:https://github.com/json-k/java-esprit-api-client.git'
+             developerConnection 'scm:git:https://github.com/json-k/java-esprit-api-client.git'
+         }
+
+         licenses {
+             license {
+                 name 'The Apache Software License, Version 2.0'
+                 url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                 distribution 'repo'
+             }
+         }
+
+         developers {
+             developer {
+                 id 'json-k'
+                 name 'json-k'
+                 email 'jason@keeber.org'
+             }
+         }
+     }
+ }
+
+
+
+
+
+
