@@ -11,7 +11,7 @@ apply plugin: 'signing'
      }
  }
 
-version = '0.1.0'
+version = '0.1.5'
 group = 'org.keeber'
 archivesBaseName = 'esprit-api-client'
 
@@ -33,11 +33,11 @@ javadoc {
  modifyPom {
      project {
          name 'Java Esprit Client'
-         description 'Gradle plugin that provides tasks for configuring and uploading artifacts to Sonatype Nexus.'
+         description 'Client for Dalim Esprit.'
          url 'https://github.com/json-k/java-esprit-api-client'
 
          scm {
-             url 'https://github.com/bmuschko/gradle-nexus-plugin'
+             url 'https://github.com/json-k/java-esprit-api-client'
              connection 'scm:svn:https://github.com/json-k/java-esprit-api-client.git'
              developerConnection 'scm:git:https://github.com/json-k/java-esprit-api-client.git'
          }

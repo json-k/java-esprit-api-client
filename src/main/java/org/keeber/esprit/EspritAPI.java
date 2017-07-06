@@ -392,6 +392,43 @@ public class EspritAPI implements Closeable {
 
     }
 
+    /**
+     * Method - "document.delete" This method deletes document(s).
+     * 
+     * @param ref One of ID or path is mandatory.
+     * @return
+     * @throws EspritConnectionException
+     */
+    public ApiResponse<EsStatus> delete(EsRef ref) throws EspritConnectionException {
+      return transport.execute(ApiRequest.from("document.delete", EsStatus.class, ref));
+    }
+
+    /**
+     * Method - "document.approve" This method approves a document.
+     * 
+     * In testing this didn't appear to work when a default viewing condition was present.
+     * 
+     * @param ref One of ID or path is mandatory.
+     * @param comment User comment on the approval.
+     * @return
+     * @throws EspritConnectionException
+     */
+    public ApiResponse<EsStatus> approve(EsRef ref, Optional<String> comment) throws EspritConnectionException {
+      return transport.execute(ApiRequest.from("document.approve", EsStatus.class, ref).put("comment", comment.orElse(null)));
+    }
+
+    /**
+     * Method - "document.reject" This method rejects a document
+     * 
+     * @param ref One of ID or path is mandatory.
+     * @param comment User comment on the approval.
+     * @return
+     * @throws EspritConnectionException
+     */
+    public ApiResponse<EsStatus> reject(EsRef ref, Optional<String> comment) throws EspritConnectionException {
+      return transport.execute(ApiRequest.from("document.reject", EsStatus.class, ref).put("comment", comment.orElse(null)));
+    }
+
   }
 
   /**
@@ -544,7 +581,8 @@ public class EspritAPI implements Closeable {
      * 'Aborted', or a workflow milestone. jobActivation : can take one of two values, 'Active' or
      * 'Inactive'.
      * 
-     * @param where the query string - customerName LIKE 'CSC%' AND jobActivation='Active' can be built with {@link #newSelectWhereBuilder} 
+     * @param where the query string - customerName LIKE 'CSC%' AND jobActivation='Active' can be
+     *        built with {@link #newSelectWhereBuilder}
      * @param esclass either ESClass.Job or ESClass.PageOrder
      * @param columns list of the property names creating the columns
      * @return
@@ -1064,11 +1102,23 @@ public class EspritAPI implements Closeable {
       error.ifPresent(consumer);
     }
 
+    /**
+     * Returns the result of this API call (if there was one).
+     * 
+     * @return
+     */
     public T get() {
       return result.get();
     }
 
-    public <X extends Throwable> T resultOrThrow(Supplier<? extends X> exceptionSupplier) throws X {
+    /**
+     * Return the result or throw an exception.
+     * 
+     * @param exceptionSupplier
+     * @return
+     * @throws X
+     */
+    public <X extends Throwable> T orThrow(Supplier<? extends X> exceptionSupplier) throws X {
       return result.orElseThrow(exceptionSupplier);
     }
 
@@ -1076,7 +1126,13 @@ public class EspritAPI implements Closeable {
       result.ifPresent(consumer);
     }
 
-    public T resultOr(T other) {
+    /**
+     * Get the result if present, otherwise return other.
+     * 
+     * @param other
+     * @return
+     */
+    public T or(T other) {
       return result.orElse(other);
     }
 
