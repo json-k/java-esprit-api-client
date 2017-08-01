@@ -5,7 +5,7 @@ import java.util.List;
 import org.keeber.esprit.EspritAPI.ApiRequest;
 
 import com.dalim.esprit.api.EsObject;
-import com.dalim.esprit.api.EsRef;
+import com.dalim.esprit.api.EsReferenceable;
 import com.dalim.esprit.api.EsStatus;
 import com.google.gson.annotations.SerializedName;
 
@@ -138,7 +138,7 @@ public class EsCustomer extends EsObject {
   /**
    * Template class as returned by parent Customer.
    * 
-   * @author Jason
+   * @author Jason Keeber <jason@keeber.org>
    *
    */
   public static class ESTemplate {
@@ -155,8 +155,11 @@ public class EsCustomer extends EsObject {
 
   }
 
-  /*
-   * Getters
+  /**
+   * Return creation params with the given customer name.
+   * 
+   * @param name Customer name.
+   * @return
    */
   public static EsCustomer.CreationParams create(String name) {
     return new CreationParams(name);
@@ -165,7 +168,7 @@ public class EsCustomer extends EsObject {
   /**
    * Creation parameters for new customers. The name parameter is the only required parameter.
    * 
-   * @author Jason
+   * @author Jason Keeber <jason@keeber.org>
    *
    */
   public static class CreationParams extends ApiRequest<EsObject> {
@@ -208,18 +211,24 @@ public class EsCustomer extends EsObject {
   }
 
   /**
-   * Edit parameters for existing customers. The path or ID is required.
+   * Returns edit parameters for existing customers. The path or ID is required.
    * 
-   * @param ref
+   * @param ref One of ID or path is mandatory.
    * @return
    */
-  public static EsCustomer.EditParams edit(EsRef ref) {
+  public static EsCustomer.EditParams edit(EsReferenceable ref) {
     return new EditParams(ref);
   }
 
+  /**
+   * Edit parameters for existing customer. Reference to existing customer required.
+   * 
+   * @author Jason Keeber <jason@keeber.org>
+   *
+   */
   public static class EditParams extends ApiRequest<EsStatus> {
 
-    public EditParams(EsRef ref) {
+    public EditParams(EsReferenceable ref) {
       super("customer.edit", EsStatus.class);
       put("path", ref.getPath());
       put("ID", ref.getID());
@@ -235,11 +244,35 @@ public class EsCustomer extends EsObject {
       return this;
     }
 
+    /**
+     * Add to the list of metadata.
+     * 
+     * <p>
+     * Note: complex objects in ES are JSON strings in this context.
+     * 
+     * @param namespace Metadata namespace as defined in ES.
+     * @param property Metadata name as defined in ES.
+     * @param value Metadata value.
+     * @return
+     */
     public EditParams addMetadata(String namespace, String property, Object value) {
       this.arr("metadatas", new Object[] {namespace, property, value});
       return this;
     }
 
+
+    /**
+     * Possible additional params for the document type include: Same list of parameters as
+     * customer.create except \"name\".
+     * 
+     * <p>
+     * (that is what it says in their API documentation)
+     * 
+     * 
+     * @param param name.
+     * @param value to set.
+     * @return
+     */
     public EditParams withParam(String param, String value) {
       put(param, value);
       return this;

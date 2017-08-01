@@ -11,7 +11,7 @@ apply plugin: 'signing'
      }
  }
 
-version = '0.1.5'
+version = '0.2.0'
 group = 'org.keeber'
 archivesBaseName = 'esprit-api-client'
 
@@ -21,16 +21,24 @@ dependencies{
 	compile 'com.google.code.gson:gson:2.8.1'
 	compile 'com.joestelmach:natty:0.13'
 	compile 'org.slf4j:slf4j-api:1.7.25'
-	compile 'org.slf4j:slf4j-jdk14:1.7.25'
+	//compile 'org.slf4j:slf4j-nop:1.7.25'
 }	
+
+
+
+//Test executor for debigging.
+task harness(type:JavaExec) {
+systemProperty 'java.util.logging.ConsoleHandler.level', 'ALL'
+	group = 'verification'
+	main = 'org.keeber.esprit.Harness'
+	classpath{[sourceSets.main.runtimeClasspath,sourceSets.test.runtimeClasspath]}
+}
 
 javadoc {
 	failOnError = false
 }
 
-
-
- modifyPom {
+modifyPom {
      project {
          name 'Java Esprit Client'
          description 'Client for Dalim Esprit.'

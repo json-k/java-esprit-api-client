@@ -14,7 +14,7 @@ package com.dalim.esprit.api;
  * @author Jason
  *
  */
-public class EsRef {
+public class EsRef implements EsReferenceable {
   private String path;
   private Integer ID;
 
@@ -81,6 +81,31 @@ public class EsRef {
     return ID;
   }
 
+  public static class WithClass extends EsRef implements EsClassable {
+    private EsClass esclass;
 
+    public static EsRef.WithClass from(Integer ID, EsClass esclass) {
+      return new EsRef.WithClass(ID, esclass);
+    }
+
+    public static EsRef.WithClass from(String path) {
+      return new EsRef.WithClass(path);
+    }
+
+    public WithClass(Integer ID, EsClass esclass) {
+      super(ID);
+      this.esclass = esclass;
+    }
+
+    public WithClass(String path) {
+      super(path);
+    }
+
+    @Override
+    public EsClass getEsclass() {
+      return esclass;
+    }
+
+  }
 
 }

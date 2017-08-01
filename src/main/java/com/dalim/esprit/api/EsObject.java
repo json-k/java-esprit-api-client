@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 
 import com.google.gson.annotations.SerializedName;
 
-public class EsObject extends EsBase {
+public class EsObject extends EsBase implements EsClassable {
 
   private Date lastModificationDate, creationDate;
   @SerializedName("class")

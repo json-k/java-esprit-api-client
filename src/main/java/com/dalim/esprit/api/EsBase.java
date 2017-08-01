@@ -1,6 +1,6 @@
 package com.dalim.esprit.api;
 
-public class EsBase {
+public class EsBase implements EsReferenceable {
   private String name;
   private Integer ID;
 
@@ -9,7 +9,6 @@ public class EsBase {
   }
 
   protected EsBase(Integer iD) {
-
     ID = iD;
   }
 
@@ -21,6 +20,18 @@ public class EsBase {
     return ID;
   }
 
+  public String getPath() {
+    return null;
+  }
 
+  /**
+   * This is here to make certain method returns make sense.
+   * 
+   * @author Jason Keeber <jason@keeber.org>
+   *
+   */
+  public static class ListOf extends com.dalim.esprit.api.ListOf<EsBase> {
+
+  }
 
 }
