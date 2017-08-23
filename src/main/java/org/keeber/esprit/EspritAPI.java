@@ -555,7 +555,7 @@ public class EspritAPI implements Closeable {
       }
 
       public UploadMetadata add(String namespace, String property, String value) {
-        map.put("Metadata/:" + namespace + "/" + property, value);
+        map.put("MetaData/:" + namespace + "/" + property, value);
         return this;
       }
 
@@ -1400,7 +1400,6 @@ public class EspritAPI implements Closeable {
       try {
         connection = (HttpURLConnection) new URL(endpoint.concat(UPL_ENDPOINT)).openConnection();
         connection.setRequestMethod("POST");
-        connection.setRequestProperty("Content-Type", "application/json");
         connection.setConnectTimeout(10000);
         if (isLoggedIn()) {
           connection.setRequestProperty("Cookie", "JSESSIONID=" + sessionid);
@@ -1408,13 +1407,21 @@ public class EspritAPI implements Closeable {
           throw new EspritConnectionException("AUTH [Not logged in to API]");
         }
         connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + (boundary = "==" + System.currentTimeMillis() + "=="));
-        connection.setUseCaches(false);
+        //connection.setUseCaches(false);
         connection.setDoOutput(true);
         connection.setDoInput(true);
         connection.connect();
         OutputStream os;
         PrintWriter wt = new PrintWriter(new OutputStreamWriter(os = connection.getOutputStream(), io.UTF_8), true);
         {
+          // Add the parameters
+          for (Entry<String, String> entry : metadata.entrySet()) {
+            wt.append("--" + boundary).append(io.LF);
+            wt.append("Content-Disposition: form-data; name=\"").append(entry.getKey()).append("\"").append(io.LF);
+            wt.append("Content-Type: text/plain; charset=").append(io.UTF_8).append(io.LF).append(io.LF);
+            wt.append(io.asString(entry.getValue())).append(io.LF);
+            wt.flush();
+          }
           // Upload the file
           wt.append("--" + boundary).append(io.LF);
           wt.append("Content-Disposition: form-data; name=\"file\"; filename=\"").append(URLEncoder.encode(name, io.UTF_8)).append("\"").append(io.LF);
@@ -1425,14 +1432,6 @@ public class EspritAPI implements Closeable {
           io.close(payload);
           wt.append(io.LF);
           wt.flush();
-          // Add the parameters
-          for (Entry<String, String> entry : metadata.entrySet()) {
-            wt.append("--" + boundary).append(io.LF);
-            wt.append("Content-Disposition: form-data; name=\"").append(entry.getKey()).append("\"").append(io.LF);
-            wt.append("Content-Type: text/plain; charset=").append(io.UTF_8).append(io.LF).append(io.LF);
-            wt.append(URLEncoder.encode(io.asString(entry.getValue()), io.UTF_8)).append(io.LF);
-            wt.flush();
-          }
         }
         wt.append("--" + boundary + "--").append(io.LF);
         wt.flush();
