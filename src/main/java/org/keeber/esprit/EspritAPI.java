@@ -20,8 +20,6 @@ import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1638,18 +1636,18 @@ public class EspritAPI implements Closeable {
      *
      */
     private static class DateAdapter implements JsonDeserializer<Date>, JsonSerializer<Date> {
-      private DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
+      //private DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
 
       @Override
       public JsonElement serialize(Date src, Type typeOfSrc, JsonSerializationContext context) {
-        return new JsonPrimitive(df.format(src));
+        return new JsonPrimitive(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX").format(src));
       }
 
       @Override
       public Date deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
         try {
-          return df.parse(json.getAsString());
-        } catch (ParseException e) {
+          return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX").parse(json.getAsString());
+        } catch (Exception e) {
           return null;
         }
       }
@@ -1726,7 +1724,7 @@ public class EspritAPI implements Closeable {
         try {
           transform.invert();
         } catch (NoninvertibleTransformException e) {
-          e.printStackTrace();
+          //e.printStackTrace();
         }
         float[] coords = new float[6];
         for (PathIterator it = src.getPathIterator(transform); !it.isDone(); it.next()) {
