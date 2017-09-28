@@ -8,6 +8,7 @@ import java.awt.geom.Rectangle2D;
 import java.awt.geom.Rectangle2D.Float;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.FilterInputStream;
@@ -519,14 +520,19 @@ public class EspritAPI implements Closeable {
      * The undocumented (at least in the 'official' API docs) upload method. <b>NOTE:</b> this
      * method closes the input stream (even in the event of a failure).
      * 
+     * <p>
+     * The optional length parameter allows 'full' streaming - the form data is written to the
+     * socket (basically). This would make a progress bar accurate.
+     * 
      * @param payload stream to upload.
+     * @param length when provided will enable full streaming.
      * @param fileName PageOrder name in ES.
      * @param metadata metadata to add to document see:{@link#newUploadMetadata}
      * @return
      * @throws EspritConnectionException
      */
-    public ApiResponse<Boolean> upload(InputStream payload, String fileName, UploadMetadata metadata) throws EspritConnectionException {
-      return transport.upload(payload, fileName, metadata.map);
+    public ApiResponse<Boolean> upload(InputStream payload, Optional<Long> length, String fileName, UploadMetadata metadata) throws EspritConnectionException {
+      return transport.upload(payload, length, fileName, metadata.map);
     }
 
     /**
@@ -1391,27 +1397,20 @@ public class EspritAPI implements Closeable {
       this.sessionid = sessionid;
     }
 
-    private ApiResponse<Boolean> upload(InputStream payload, String name, Map<String, String> metadata) throws EspritConnectionException {
+    private ApiResponse<Boolean> upload(InputStream payload, Optional<Long> length, String name, Map<String, String> metadata) throws EspritConnectionException {
       ApiResponse<Boolean> response = new ApiResponse<>();
-      String boundary = null;
+      String boundary = "==" + System.currentTimeMillis() + "==";
       HttpURLConnection connection = null;
       try {
-        connection = (HttpURLConnection) new URL(endpoint.concat(UPL_ENDPOINT)).openConnection();
-        connection.setRequestMethod("POST");
-        connection.setConnectTimeout(10000);
-        if (isLoggedIn()) {
-          connection.setRequestProperty("Cookie", "JSESSIONID=" + sessionid);
-        } else {
-          throw new EspritConnectionException("AUTH [Not logged in to API]");
-        }
-        connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + (boundary = "==" + System.currentTimeMillis() + "=="));
-        //connection.setUseCaches(false);
-        connection.setDoOutput(true);
-        connection.setDoInput(true);
-        connection.connect();
-        OutputStream os;
-        PrintWriter wt = new PrintWriter(new OutputStreamWriter(os = connection.getOutputStream(), io.UTF_8), true);
+        byte[] preContent;
+        byte[] pstContent;
+        // We write the form data to streams so we can calculate their length - because if we have
+        // the length of the file we can stream this.
         {
+          ByteArrayOutputStream bos;
+          PrintWriter wt;
+          // Write the PREFILE FORM
+          wt = new PrintWriter(new OutputStreamWriter(bos = new ByteArrayOutputStream(), io.UTF_8), true);
           // Add the parameters
           for (Entry<String, String> entry : metadata.entrySet()) {
             wt.append("--" + boundary).append(io.LF);
@@ -1420,20 +1419,46 @@ public class EspritAPI implements Closeable {
             wt.append(io.asString(entry.getValue())).append(io.LF);
             wt.flush();
           }
-          // Upload the file
+          // File upload header
           wt.append("--" + boundary).append(io.LF);
           wt.append("Content-Disposition: form-data; name=\"file\"; filename=\"").append(URLEncoder.encode(name, io.UTF_8)).append("\"").append(io.LF);
           wt.append("Content-Type: ").append(HttpURLConnection.guessContentTypeFromName(name)).append(io.LF);
           wt.append("Content-Transfer-Encoding: binary").append(io.LF).append(io.LF);
           wt.flush();
-          io.copy(new BufferedInputStream(payload), new BufferedOutputStream(os), false);
-          io.close(payload);
+          io.close(wt);
+          preContent = bos.toByteArray();
+          // Write the PSTFILE FORM
+          wt = new PrintWriter(new OutputStreamWriter(bos = new ByteArrayOutputStream(), io.UTF_8), true);
           wt.append(io.LF);
+          wt.append("--" + boundary + "--").append(io.LF);
           wt.flush();
+          io.close(wt);
+          pstContent = bos.toByteArray();
         }
-        wt.append("--" + boundary + "--").append(io.LF);
-        wt.flush();
-        io.close(wt);
+        connection = (HttpURLConnection) new URL(endpoint.concat(UPL_ENDPOINT)).openConnection();
+        if (length.isPresent()) {
+          connection.setFixedLengthStreamingMode(preContent.length + length.get() + pstContent.length);
+        }
+        connection.setRequestMethod("POST");
+        connection.setConnectTimeout(10000);
+        if (isLoggedIn()) {
+          connection.setRequestProperty("Cookie", "JSESSIONID=" + sessionid);
+        } else {
+          throw new EspritConnectionException("AUTH [Not logged in to API]");
+        }
+        connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);;
+        connection.setDoOutput(true);
+        connection.setDoInput(true);
+        connection.connect();
+        OutputStream os = new BufferedOutputStream(connection.getOutputStream());
+        {
+          io.copy(new ByteArrayInputStream(preContent), os, false);
+          io.copy(new BufferedInputStream(payload), os, false);
+          io.close(payload);
+          io.copy(new ByteArrayInputStream(pstContent), os, false);
+        }
+
+        io.close(os);
         response.setResult(connection.getResponseCode() == 204);
       } catch (IOException e) {
         throw new EspritConnectionException("HTTP Exception.", e);
@@ -1550,7 +1575,7 @@ public class EspritAPI implements Closeable {
     }
 
     protected static void copy(InputStream is, OutputStream os, boolean close) throws IOException {
-      byte[] buffer = new byte[1024 * 128];
+      byte[] buffer = new byte[1024 * 1024];
       int len;
       while ((len = is.read(buffer)) > 0) {
         os.write(buffer, 0, len);
@@ -1636,7 +1661,7 @@ public class EspritAPI implements Closeable {
      *
      */
     private static class DateAdapter implements JsonDeserializer<Date>, JsonSerializer<Date> {
-      //private DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
+      // private DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
 
       @Override
       public JsonElement serialize(Date src, Type typeOfSrc, JsonSerializationContext context) {
@@ -1724,7 +1749,7 @@ public class EspritAPI implements Closeable {
         try {
           transform.invert();
         } catch (NoninvertibleTransformException e) {
-          //e.printStackTrace();
+          // e.printStackTrace();
         }
         float[] coords = new float[6];
         for (PathIterator it = src.getPathIterator(transform); !it.isDone(); it.next()) {
