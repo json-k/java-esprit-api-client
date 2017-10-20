@@ -15,7 +15,8 @@ public  class ESMetadataLayout {
   }
 
   public static class ESField {
-    private String name, nameSpace, value, type;
+    private String name, nameSpace, type;
+    private Object value;
 
     public String getName() {
       return name;
@@ -25,7 +26,7 @@ public  class ESMetadataLayout {
       return nameSpace;
     }
 
-    public String getValue() {
+    public Object getValue() {
       return value;
     }
 
