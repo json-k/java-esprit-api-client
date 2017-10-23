@@ -1,12 +1,13 @@
 package com.dalim.esprit.api;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import com.google.gson.annotations.SerializedName;
 
 public class ListOf<T extends EsBase> {
-  private List<T> objectList;
+  private List<T> objectList = new ArrayList<>();
   @SerializedName("class")
   private EsClass esclass;
 
