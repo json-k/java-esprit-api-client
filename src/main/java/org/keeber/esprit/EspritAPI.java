@@ -935,11 +935,15 @@ public class EspritAPI implements Closeable {
       }
 
       public SQLQueryBuilder addColumn(EsSqlResult.Table table, String col, String as, boolean orderby) {
+        return addColumn(table, col, as, orderby, false);
+      }
+
+      public SQLQueryBuilder addColumn(EsSqlResult.Table table, String col, String as, boolean orderby, boolean descending) {
         if (!tables.contains(table)) {
           tables.add(table);
         }
         if (orderby) {
-          orderBy = table.toString() + "." + col;
+          orderBy = table.toString() + "." + col.replaceAll(" ", "\\\\ ") + (descending ? " DESC" : "");
         }
         columns.add(table.toString() + "." + col.replaceAll(" ", "\\\\ ") + " as " + as.replaceAll(" ", "\\\\ "));
         return this;
@@ -979,6 +983,8 @@ public class EspritAPI implements Closeable {
      * 'Aborted', or a workflow milestone. jobActivation : can take one of two values, 'Active' or
      * 'Inactive'.
      * 
+     * @deprecated - this appears to be going away in ES5(something).
+     * 
      * @param where the query string - customerName LIKE 'CSC%' AND jobActivation='Active' can be
      *        built with {@link #newSelectWhereBuilder}
      * @param esclass either ESClass.Job or ESClass.PageOrder
@@ -986,6 +992,7 @@ public class EspritAPI implements Closeable {
      * @return
      * @throws EspritConnectionException
      */
+    @Deprecated
     public ApiResponse<EsSelectResult> select(EsClass esclass, String where, String... columns) throws EspritConnectionException {
       return transport.execute(ApiRequest.from("production.select", EsSelectResult.class).put("class", esclass).put("where", where).put("columns", columns));
     }
