@@ -1850,6 +1850,9 @@ public class EspritAPI implements Closeable {
     }
 
     protected ApiRequest<T> put(String key, Object value) {
+      if (key.toLowerCase().endsWith("id") && value != null && value.toString().matches("[0-9]+")) {
+        value = value.toString();
+      }
       params.put(key, value);
       return this;
     }
