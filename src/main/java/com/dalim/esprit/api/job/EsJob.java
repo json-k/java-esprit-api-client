@@ -14,7 +14,7 @@ import com.dalim.esprit.api.EsStatus;
 import com.dalim.esprit.api.folder.EsFolder;
 
 public class EsJob extends EsObject {
-  private String customerName, creationUser, documentWorkflow, projectTemplate, lastModificationUser, description, XMP;
+  private String customerName, creationUser, jobWorkflow, documentWorkflow, projectTemplate, lastModificationUser, description, XMP;
   private boolean reversedView, exportAsRSS;
   private float trimmedWidth, trimmedHeight;
   private int priority, projectTemplateID, customerID;
@@ -37,19 +37,17 @@ public class EsJob extends EsObject {
     return customerName;
   }
 
-
-
   public String getCreationUser() {
     return creationUser;
   }
-
-
-
+  
   public String getDocumentWorkflow() {
     return documentWorkflow;
   }
 
-
+  public String getJobWorkflow() {
+    return jobWorkflow;
+  }
 
   public String getProjectTemplate() {
     return projectTemplate;
@@ -191,7 +189,7 @@ public class EsJob extends EsObject {
    * @param EsRef
    * @return
    */
-  public static EsJob.EditParams create(EsReferenceable ref) {
+  public static EsJob.EditParams edit(EsReferenceable ref) {
     return new EditParams(ref);
   }
 
