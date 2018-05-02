@@ -10,7 +10,7 @@ import com.dalim.esprit.api.EsReferenceable;
 import com.dalim.esprit.api.EsStatus;
 
 public class EsDocument extends EsObject {
-  private String creationUser, lastModificationUser, documentWorkflow, UUID, currentRevision, XMP;
+  private String creationUser, lastModificationUser, documentWorkflow, UUID, currentRevision, XMP, colorSpaceName, viewingCondition;
   private Integer jobID, lastRevision, priority;
   private List<ESMetadataLayout> metadataLayout;
 
@@ -49,6 +49,16 @@ public class EsDocument extends EsObject {
 
   public String getXMP() {
     return XMP;
+  }
+
+
+
+  public String getColorSpaceName() {
+    return colorSpaceName;
+  }
+
+  public String getViewingCondition() {
+    return viewingCondition;
   }
 
   public List<ESMetadataLayout> getMetadataLayouts() {
@@ -112,6 +122,16 @@ public class EsDocument extends EsObject {
      */
     public CreationParams withMoveFile(boolean moveFile) {
       put("moveFile", moveFile);
+      return this;
+    }
+
+    public CreationParams withColorSpaceName(String csname) {
+      put("colorSpaceName", csname);
+      return this;
+    }
+
+    public CreationParams withViewingCondition(String condition) {
+      put("viewingCondition", condition);
       return this;
     }
 
@@ -182,6 +202,16 @@ public class EsDocument extends EsObject {
 
     public EditParams withDescription(String description) {
       put("description", description);
+      return this;
+    }
+
+    public EditParams withColorSpaceName(String csname) {
+      put("colorSpaceName", csname);
+      return this;
+    }
+
+    public EditParams withViewingCondition(String condition) {
+      put("viewingCondition", condition);
       return this;
     }
 

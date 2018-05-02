@@ -14,8 +14,8 @@ import com.dalim.esprit.api.EsStatus;
 import com.dalim.esprit.api.folder.EsFolder;
 
 public class EsJob extends EsObject {
-  private String customerName, creationUser, jobWorkflow, documentWorkflow, projectTemplate, lastModificationUser, description, XMP;
-  private boolean reversedView, exportAsRSS;
+  private String customerName, creationUser, jobWorkflow, documentWorkflow, projectTemplate, lastModificationUser, description, XMP, colorSpaceName, viewingCondition;
+  private boolean reversedView, exportAsRSS, active;
   private float trimmedWidth, trimmedHeight;
   private int priority, projectTemplateID, customerID;
   private List<ESMetadataLayout> metadataLayout;
@@ -32,6 +32,9 @@ public class EsJob extends EsObject {
     return deadlines;
   }
 
+  public boolean isActive() {
+    return active;
+  }
 
   public String getCustomerName() {
     return customerName;
@@ -40,7 +43,7 @@ public class EsJob extends EsObject {
   public String getCreationUser() {
     return creationUser;
   }
-  
+
   public String getDocumentWorkflow() {
     return documentWorkflow;
   }
@@ -71,7 +74,13 @@ public class EsJob extends EsObject {
     return XMP;
   }
 
+  public String getColorSpaceName() {
+    return colorSpaceName;
+  }
 
+  public String getViewingCondition() {
+    return viewingCondition;
+  }
 
   public boolean isReversedView() {
     return reversedView;
@@ -294,6 +303,16 @@ public class EsJob extends EsObject {
       return this;
     }
 
+    public EditParams withColorSpaceName(String csname) {
+      put("colorSpaceName", csname);
+      return this;
+    }
+
+    public EditParams withViewingCondition(String condition) {
+      put("viewingCondition", condition);
+      return this;
+    }
+
     /**
      * Addition params one of:
      * 
@@ -443,6 +462,16 @@ public class EsJob extends EsObject {
      */
     public CreationParams withNbDocuments(int nbDocuments) {
       put("nbDocuments", nbDocuments);
+      return this;
+    }
+
+    public CreationParams withColorSpaceName(String csname) {
+      put("colorSpaceName", csname);
+      return this;
+    }
+
+    public CreationParams withViewingCondition(String condition) {
+      put("viewingCondition", condition);
       return this;
     }
 
