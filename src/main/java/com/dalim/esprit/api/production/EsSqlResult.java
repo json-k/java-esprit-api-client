@@ -23,7 +23,7 @@ import com.joestelmach.natty.Parser;
 
 public class EsSqlResult {
   public enum Table {
-    CUSTOMER, JOB, DOCUMENT, FOLDER, LOG;
+    CUSTOMER, JOB, DOCUMENT, FOLDER, LOG, FILE, DEADLINE, PRODUCTIONLIST, JOBAPPROVER, DOCUMENTAPPROVER;
   }
 
   public static String formatError(EsError error) {
