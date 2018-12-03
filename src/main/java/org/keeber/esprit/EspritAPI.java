@@ -20,7 +20,6 @@ import java.io.PrintWriter;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1428,7 +1427,7 @@ public class EspritAPI implements Closeable {
           }
           // File upload header
           wt.append("--" + boundary).append(io.LF);
-          wt.append("Content-Disposition: form-data; name=\"file\"; filename=\"").append(URLEncoder.encode(name, io.UTF_8)).append("\"").append(io.LF);
+          wt.append("Content-Disposition: form-data; name=\"file\"; filename=\"").append(name).append("\"").append(io.LF);
           wt.append("Content-Type: ").append(HttpURLConnection.guessContentTypeFromName(name)).append(io.LF);
           wt.append("Content-Transfer-Encoding: binary").append(io.LF).append(io.LF);
           wt.flush();
