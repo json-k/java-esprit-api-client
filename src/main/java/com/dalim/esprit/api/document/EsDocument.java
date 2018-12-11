@@ -251,4 +251,95 @@ public class EsDocument extends EsObject {
 
   }
 
+  /**
+   * Returns creation params for new documents. The path or ID - of the JOB - is required, as well
+   * as the document name.
+   * 
+   * <p>
+   * The document name will be the PageOrderName if there is a document with that name already it
+   * will stack.
+   * 
+   * @param jobRef One of ID or path is mandatory.
+   * @param name of the document.
+   * @param URL to fetch the document.
+   * @return
+   */
+  public static EsDocument.RegisterParams register(EsReferenceable jobRef, String name, String URL) {
+    return new RegisterParams(jobRef, name, URL);
+  }
+
+  public static class RegisterParams extends ApiRequest<EsStatus> {
+
+    public RegisterParams(EsReferenceable jobRef, String name, String URL) {
+      super("document.register", EsStatus.class);
+      put("documentName", name);
+      put("jobID", jobRef.getID());
+      put("jobPath", jobRef.getPath());
+      put("URL", URL);
+      put("moveFile", true);
+    }
+
+    public RegisterParams withDescription(String description) {
+      put("description", description);
+      return this;
+    }
+
+    /**
+     * If true the file is uploaded to ES else the file stays where it is provided the URL starts as
+     * a SHARED Volume defined in ES.
+     * 
+     * @param moveFile upload the file?
+     * @return
+     */
+    public RegisterParams withMoveFile(boolean moveFile) {
+      put("moveFile", moveFile);
+      return this;
+    }
+
+    public RegisterParams withColorSpaceName(String csname) {
+      put("colorSpaceName", csname);
+      return this;
+    }
+
+    public RegisterParams withViewingCondition(String condition) {
+      put("viewingCondition", condition);
+      return this;
+    }
+
+    /**
+     * Add to the list of metadata.
+     * 
+     * <p>
+     * Note: complex objects in ES are JSON strings in this context.
+     * 
+     * @param namespace Metadata namespace as defined in ES.
+     * @param property Metadata name as defined in ES.
+     * @param value Metadata value.
+     * @return
+     */
+    public RegisterParams addMetadata(String namespace, String property, Object value) {
+      arr("metadatas", new Object[] {namespace, property, value});
+      return this;
+    }
+
+    /**
+     * Possible additional params for the document type include:
+     * 
+     * <ul>
+     * <li>colorSpaceName
+     * <li>viewingCondition
+     * <li>documentWorkflow
+     * </ul>
+     * 
+     * @param param name.
+     * @param value to set.
+     * @return
+     */
+    public RegisterParams withParam(String param, String value) {
+      put(param, value);
+      return this;
+    }
+
+  }
+
 }

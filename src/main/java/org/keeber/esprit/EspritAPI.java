@@ -58,6 +58,7 @@ import com.dalim.esprit.api.customer.EsCustomer;
 import com.dalim.esprit.api.directory.EsUserProfiles;
 import com.dalim.esprit.api.document.EsApprovalStatus;
 import com.dalim.esprit.api.document.EsDocument;
+import com.dalim.esprit.api.document.EsDocumentWorkflow;
 import com.dalim.esprit.api.document.EsNote;
 import com.dalim.esprit.api.document.EsNote.CmykColor;
 import com.dalim.esprit.api.folder.EsFolder;
@@ -497,6 +498,23 @@ public class EspritAPI implements Closeable {
     }
 
     /**
+     * Method - "document.register" Uploads a document in an existing project - this is async so does not return a response.
+     * <p>
+     * Create params are created using the static EsDocument.register method:
+     * <p>
+     * {@code
+     * EsDocument.register(EsRef.from(234234234),"Pageordername.tif")
+     *}
+     * 
+     * @param params
+     * @return
+     * @throws EspritConnectionException
+     */
+    public ApiResponse<EsStatus> register(EsDocument.RegisterParams params) throws EspritConnectionException {
+      return transport.execute(params);
+    }
+
+    /**
      * Method - "document.edit" Edit an existing document. The list of parameters allows to change
      * the value of each of them.
      * <p>
@@ -678,6 +696,18 @@ public class EspritAPI implements Closeable {
      */
     public ApiResponse<EsXMP> getXMP(EsReferenceable ref) throws EspritConnectionException {
       return transport.execute(ApiRequest.from("document.getXMP", EsXMP.class, ref));
+    }
+
+    /**
+     * Method - "document.getWFLs" - this returns the list of active workflows attached to the
+     * document.
+     * 
+     * @param ref One of ID or path is mandatory.
+     * @return
+     * @throws EspritConnectionException
+     */
+    public ApiResponse<EsDocumentWorkflow.ListOf> getWFLs(EsReferenceable ref) throws EspritConnectionException {
+      return transport.execute(ApiRequest.from("document.getWFLs", EsDocumentWorkflow.ListOf.class, ref));
     }
 
     /**
@@ -1525,7 +1555,10 @@ public class EspritAPI implements Closeable {
         connection.setDoOutput(true);
         connection.connect();
         OutputStream os = connection.getOutputStream();
-        //System.out.println("curl -H 'Content-Type: application/json' -H '" + ("admin.login".equals(command.getMethod()) ? ("Authorization: Basic " + auth) : ("Cookie: JSESSIONID=" + sessionid)) + "' -X POST -d '" + json.getCompact().toJson(command) + "' " + endpoint.concat(RPC_ENDPOINT));
+        // System.out.println("curl -H 'Content-Type: application/json' -H '" +
+        // ("admin.login".equals(command.getMethod()) ? ("Authorization: Basic " + auth) : ("Cookie:
+        // JSESSIONID=" + sessionid)) + "' -X POST -d '" + json.getCompact().toJson(command) + "' "
+        // + endpoint.concat(RPC_ENDPOINT));
         os.write(json.getCompact().toJson(command).getBytes(io.UTF_8));
         os.close();
         int code;
