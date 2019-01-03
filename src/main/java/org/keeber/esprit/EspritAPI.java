@@ -1476,7 +1476,8 @@ public class EspritAPI implements Closeable {
           connection.setFixedLengthStreamingMode(preContent.length + length.get() + pstContent.length);
         }
         connection.setRequestMethod("POST");
-        connection.setConnectTimeout(10000);
+        connection.setConnectTimeout(1000 * 10);
+        connection.setReadTimeout(1000 * 60);
         if (isLoggedIn()) {
           connection.setRequestProperty("Cookie", "JSESSIONID=" + sessionid);
         } else {
@@ -1541,7 +1542,8 @@ public class EspritAPI implements Closeable {
         connection.setRequestMethod("POST");
         connection.setRequestProperty("Content-Type", "application/json");
         connection.setRequestProperty("Accept", "*/*");
-        connection.setConnectTimeout(10000);
+        connection.setConnectTimeout(1000 * 10);
+        connection.setReadTimeout(1000 * 60);
         if (isLoggedIn()) {
           connection.setRequestProperty("Cookie", "JSESSIONID=" + sessionid);
         } else {
@@ -1555,10 +1557,6 @@ public class EspritAPI implements Closeable {
         connection.setDoOutput(true);
         connection.connect();
         OutputStream os = connection.getOutputStream();
-        // System.out.println("curl -H 'Content-Type: application/json' -H '" +
-        // ("admin.login".equals(command.getMethod()) ? ("Authorization: Basic " + auth) : ("Cookie:
-        // JSESSIONID=" + sessionid)) + "' -X POST -d '" + json.getCompact().toJson(command) + "' "
-        // + endpoint.concat(RPC_ENDPOINT));
         os.write(json.getCompact().toJson(command).getBytes(io.UTF_8));
         os.close();
         int code;

@@ -1,5 +1,10 @@
 package com.dalim.esprit.api.admin;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.google.gson.annotations.SerializedName;
+
 public class EsLoginInformation extends EsLoginResponse {
   private ESUserInformation userInformation;
 
@@ -17,6 +22,8 @@ public class EsLoginInformation extends EsLoginResponse {
   public static class ESUserInformation {
     private String lastName, color, unitLength, name, unitResolution, firstName, orgUnit, lang;
     private boolean canBrowseFileSystem, canBrowseProductCustomer, canBrowseCollection, canBrowseCustomer;
+    @SerializedName(value = "Roles")
+    private List<String> roles = new ArrayList<>();
 
     public String getLastName() {
       return lastName;
@@ -28,6 +35,14 @@ public class EsLoginInformation extends EsLoginResponse {
 
     public String getUnitLength() {
       return unitLength;
+    }
+
+    public List<String> getRoles() {
+      return roles;
+    }
+
+    public boolean hasRole(String role) {
+      return roles.contains(role);
     }
 
     /**
