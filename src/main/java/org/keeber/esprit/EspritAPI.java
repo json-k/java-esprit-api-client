@@ -43,7 +43,6 @@ import java.util.regex.Pattern;
 import com.dalim.esprit.api.EsBase;
 import com.dalim.esprit.api.EsClass;
 import com.dalim.esprit.api.EsClassable;
-import com.dalim.esprit.api.EsDirectoryObject;
 import com.dalim.esprit.api.EsObject;
 import com.dalim.esprit.api.EsReferenceable;
 import com.dalim.esprit.api.EsStatus;
@@ -55,6 +54,10 @@ import com.dalim.esprit.api.admin.EsLoginResponse;
 import com.dalim.esprit.api.admin.EsMethodList;
 import com.dalim.esprit.api.admin.EsVersion;
 import com.dalim.esprit.api.customer.EsCustomer;
+import com.dalim.esprit.api.directory.EsDirectoryObject;
+import com.dalim.esprit.api.directory.EsGroup;
+import com.dalim.esprit.api.directory.EsRoles;
+import com.dalim.esprit.api.directory.EsUser;
 import com.dalim.esprit.api.directory.EsUserProfiles;
 import com.dalim.esprit.api.document.EsApprovalStatus;
 import com.dalim.esprit.api.document.EsDocument;
@@ -347,6 +350,16 @@ public class EspritAPI implements Closeable {
    */
   public final class Directory {
 
+    /**
+     * Method - "directory.roles" Returns the list of existing user roles.
+     * 
+     * @return
+     * @throws EspritConnectionException
+     */
+    public ApiResponse<EsRoles> roles() throws EspritConnectionException {
+      return transport.execute(ApiRequest.from("directory.roles", EsRoles.class));
+    }
+
 
     /**
      * Method - "directory.userProfiles" Returns the list of existing user profiles.
@@ -368,6 +381,130 @@ public class EspritAPI implements Closeable {
      */
     public ApiResponse<EsDirectoryObject.ListOf> search(SearchParams params) throws EspritConnectionException {
       return transport.execute(params);
+    }
+
+    /**
+     * Method - "directory.getUser" Retrieves all information of a user.
+     * 
+     * @param ID of the user
+     * @return
+     * @throws EspritConnectionException
+     */
+    public ApiResponse<EsUser> getUser(String ID) throws EspritConnectionException {
+      return transport.execute(ApiRequest.from("directory.getUser", EsUser.class).put("ID", ID));
+    }
+
+    /**
+     * Method - "directory.createUser" Creates a user with all his Contact and Login information.
+     * <p>
+     * Create params are created using the static EsUser.create method:
+     * 
+     * @param params
+     * @return
+     * @throws EspritConnectionException
+     */
+    public ApiResponse<EsUser> createUser(EsUser.CreationParams params) throws EspritConnectionException {
+      return transport.execute(params);
+    }
+
+    /**
+     * Method - "directory.deleteUser" Deletes an existing user.
+     * 
+     * @param ID Name of the user to delete.
+     * @return
+     * @throws EspritConnectionException
+     */
+    public ApiResponse<EsStatus> deleteUser(String ID) throws EspritConnectionException {
+      return transport.execute(ApiRequest.from("directory.deleteUser", EsStatus.class).put("ID", ID));
+    }
+
+
+    /**
+     * Method - "directory.editUser" Allows you to edit the Contact and Login information of an
+     * existing user.
+     * <p>
+     * Create params are created using the static EsUser.edit method:
+     * 
+     * @param params
+     * @return
+     * @throws EspritConnectionException
+     */
+    public ApiResponse<EsUser> editUser(EsUser.EditParams params) throws EspritConnectionException {
+      return transport.execute(params);
+    }
+
+    /**
+     * Method - "directory.getGroup" Returns the list of users included in a group.
+     * 
+     * @param ID
+     * @return
+     * @throws EspritConnectionException
+     */
+    public ApiResponse<EsGroup> getGroup(String ID) throws EspritConnectionException {
+      return transport.execute(ApiRequest.from("directory.getGroup", EsGroup.class).put("ID", ID));
+    }
+
+    /**
+     * Method - "directory.createGroup" Creates a group..
+     * 
+     * @param orgUnit Organizational unit in which the group is created
+     * @param name Name of the group to create
+     * @param description Description of the group
+     * @param userList List of the users attached to the group
+     * @return
+     * @throws EspritConnectionException
+     */
+    public ApiResponse<EsGroup> createGroup(String orgUnit, String name, Optional<String> description, Optional<List<String>> userList) throws EspritConnectionException {
+      return transport.execute(ApiRequest.from("directory.createGroup", EsGroup.class).put("orgUnit", orgUnit).put("name", name).put("description", description.orElse("")).put("userList", userList.orElse(Collections.emptyList())));
+    }
+
+    /**
+     * Method - "directory.addUserToGroup" Addes a user to an existing group.
+     * 
+     * @param ID name of the group
+     * @param userList List of the users to add to the group
+     * @return
+     * @throws EspritConnectionException
+     */
+    public ApiResponse<EsGroup> addUserToGroup(String ID, List<String> userList) throws EspritConnectionException {
+      return transport.execute(ApiRequest.from("directory.addUserToGroup", EsGroup.class).put("ID", ID).put("userList", userList));
+    }
+
+    /**
+     * Method - "directory.removeUserFromGroup" Removes one or several users from an existing group.
+     * 
+     * @param ID Name of the group
+     * @param userList List of users to remove from the group
+     * @return
+     * @throws EspritConnectionException
+     */
+    public ApiResponse<EsGroup> removeUserFromGroup(String ID, List<String> userList) throws EspritConnectionException {
+      return transport.execute(ApiRequest.from("directory.removeUserFromGroup", EsGroup.class).put("ID", ID).put("userList", userList));
+    }
+
+    /**
+     * Method - "directory.deleteGroup" Deletes a group.
+     * 
+     * @param ID name of the group to delete
+     * @return
+     * @throws EspritConnectionException
+     */
+    public ApiResponse<EsStatus> deleteGroup(String ID) throws EspritConnectionException {
+      return transport.execute(ApiRequest.from("directory.deleteGroup", EsStatus.class).put("ID", ID));
+    }
+
+
+
+    /**
+     * Method - "directory.list" Returns a list of all children of a directory object
+     * (Organizational unit, User, Group)
+     * 
+     * @param root EsDirectoryObject to list - for the root use EsDirectoryObject.ROOT
+     * @return
+     * @throws EspritConnectionException
+     */
+    public ApiResponse<EsDirectoryObject.ListOf> list(EsDirectoryObject root) throws EspritConnectionException {
+      return transport.execute(ApiRequest.from("directory.list", EsDirectoryObject.ListOf.class).put("ID", root.getID()).put("class", EsClass.Customer.equals(root.getEsclass()) ? EsClass.OrganizationalUnit : root.getEsclass()));
     }
 
     public SearchParams newSearchParams(String query) {
@@ -498,7 +635,8 @@ public class EspritAPI implements Closeable {
     }
 
     /**
-     * Method - "document.register" Uploads a document in an existing project - this is async so does not return a response.
+     * Method - "document.register" Uploads a document in an existing project - this is async so
+     * does not return a response.
      * <p>
      * Create params are created using the static EsDocument.register method:
      * <p>
@@ -1600,7 +1738,7 @@ public class EspritAPI implements Closeable {
     protected static String asString(InputStream is) throws IOException {
       ByteArrayOutputStream bos = new ByteArrayOutputStream();
       copy(is, bos, true);
-      return bos.toString();
+      return bos.toString(UTF_8);
     }
 
     protected static void close(Closeable toclose) {
@@ -1614,7 +1752,7 @@ public class EspritAPI implements Closeable {
     }
 
     protected static void copy(InputStream is, OutputStream os, boolean close) throws IOException {
-      byte[] buffer = new byte[1024 * 1024];
+      byte[] buffer = new byte[1024 * 8];
       int len;
       while ((len = is.read(buffer)) > 0) {
         os.write(buffer, 0, len);
