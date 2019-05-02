@@ -11,7 +11,7 @@ apply plugin: 'signing'
      }
  }
 
-version = '0.3.5'
+version = '0.3.6'
 group = 'org.keeber'
 archivesBaseName = 'esprit-api-client'
 

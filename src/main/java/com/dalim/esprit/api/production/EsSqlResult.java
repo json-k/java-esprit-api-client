@@ -198,10 +198,18 @@ public class EsSqlResult {
         return (T) Boolean.valueOf(o.toString());
       }
       if (clazz.equals(float.class)) {
-        return (T) Float.valueOf(o.toString());
+        try {
+          return (T) Float.valueOf(o.toString());
+        } catch (NumberFormatException e) {
+          return null;
+        }
       }
       if (clazz.equals(int.class)) {
-        return (T) Integer.valueOf(new BigDecimal(o.toString()).toBigInteger().intValue());
+        try {
+          return (T) Integer.valueOf(new BigDecimal(o.toString()).toBigInteger().intValue());
+        } catch (NumberFormatException e) {
+          return null;
+        }
       }
       if (clazz.equals(String.class)) {
         return (T) o.toString();
