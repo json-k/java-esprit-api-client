@@ -202,6 +202,40 @@ public class EspritAPI implements Closeable {
   public transient Workflow workflow = new Workflow();
 
   /**
+   * Used in a direct response from the API.
+   * 
+   * @author Jason Keeber <jason@keeber.org>
+   *
+   */
+  public static class DirectResult {
+    JsonObject result;
+    EsError error;
+
+    private static DirectResult from(ApiResponse<JsonObject> res) {
+      DirectResult r = new DirectResult();
+      r.error = res.hasError() ? res.error() : null;
+      r.result = res.or(new JsonObject());
+      return r;
+    }
+
+  }
+
+  /**
+   * This provides low level access to API method calls. This is primarily designed for a
+   * passthrough interface allowing complete access without the usual auth.
+   * 
+   * @param method as defined at <a href="https://confluence.dalim.com/display/ESAPI">https://confluence.dalim.com/display/ESAPI</a>
+   * @param params for method at <a href="https://confluence.dalim.com/display/ESAPI">https://confluence.dalim.com/display/ESAPI</a>
+   * @return
+   * @throws EspritConnectionException
+   */
+  public DirectResult direct(String method, JsonObject params) throws EspritConnectionException {
+    ApiRequest<JsonObject> req = ApiRequest.from(method);
+    params.entrySet().forEach(e -> req.put(e.getKey(), e.getValue()));
+    return DirectResult.from(transport.execute(req));
+  }
+
+  /**
    * The "admin.*" API methods.
    * 
    * @author Jason Keeber <jason@keeber.org>
