@@ -1648,8 +1648,8 @@ public class EspritAPI implements Closeable {
           connection.setFixedLengthStreamingMode(preContent.length + length.get() + pstContent.length);
         }
         connection.setRequestMethod("POST");
-        connection.setConnectTimeout(1000 * 10);
-        connection.setReadTimeout(1000 * 60);
+        connection.setConnectTimeout(1000 * 30);
+        connection.setReadTimeout(1000 * 60 * 3);
         if (isLoggedIn()) {
           connection.setRequestProperty("Cookie", "JSESSIONID=" + sessionid);
         } else {
